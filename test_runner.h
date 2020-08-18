@@ -7,8 +7,23 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <list>
 
 using namespace std;
+
+template <class T>
+ostream& operator << (ostream& os, const list<T>& s) {
+    os << "{";
+    bool first = true;
+    for (const auto& x : s) {
+        if (!first) {
+            os << ", ";
+        }
+        first = false;
+        os << x;
+    }
+    return os << "}";
+}
 
 template <class T>
 ostream& operator << (ostream& os, const vector<T>& s) {

@@ -9,40 +9,46 @@
 #include <string>
 #include <string_view>
 #include <deque>
+#include <utility>
 
 using namespace std;
 
+struct Item {
+    size_t docid;
+    size_t hits;
+};
+
 class InvertedIndex {
 public:
-//  void Add(const string& document);
-  void Add(string document);
-  list<size_t> Lookup(const string& word) const;
+    void Add(string&& document);
 
-  const string& GetDocument(size_t id) const {
-    return docs[id];
-  }
+    const vector<Item>& Lookup(string_view word) const;
 
-  size_t GetNumberOfDocs() {
-      return docs.size();
-  }
+    const string& GetDocument(size_t docid) const {
+        return docs[docid];
+    }
 
-  auto Get() {
-      return index;
-  }
-
+    size_t GetDocsSize() const {
+        return docs.size();
+    }
 
 private:
-  map<string, list<size_t>> index;
-  vector<string> docs;
+    map<string_view, vector<Item>> index;
+    deque<string> docs;
+
+    static const vector<Item> empty_list;
 };
 
 class SearchServer {
 public:
-  SearchServer() = default;
-  explicit SearchServer(istream& document_input);
-  void UpdateDocumentBase(istream& document_input);
-  void AddQueriesStream(istream& query_input, ostream& search_results_output);
+    SearchServer() = default;
+
+    explicit SearchServer(istream &document_input);
+
+    void UpdateDocumentBase(istream &document_input);
+
+    void AddQueriesStream(istream &query_input, ostream &search_results_output);
 
 private:
-  InvertedIndex index;
+    InvertedIndex index;
 };

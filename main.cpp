@@ -1,6 +1,7 @@
 #include "search_server.h"
 #include "parse.h"
 #include "test_runner.h"
+#include "profile.h"
 
 #include <algorithm>
 #include <iterator>
@@ -23,11 +24,20 @@ void TestFunctionality(
     istringstream queries_input(Join('\n', queries));
 
     SearchServer srv;
-    srv.UpdateDocumentBase(docs_input);
+    {
+        LOG_DURATION("Load documents");
+        srv.UpdateDocumentBase(docs_input);
+
+    }
+
     ostringstream queries_output;
-    srv.AddQueriesStream(queries_input, queries_output);
+    {
+        LOG_DURATION("Get response");
+        srv.AddQueriesStream(queries_input, queries_output);
+    }
 
     const string result = queries_output.str();
+
     const auto lines = SplitBy(Strip(result), '\n');
     ASSERT_EQUAL(lines.size(), expected.size());
     for (size_t i = 0; i < lines.size(); ++i) {
@@ -47,6 +57,30 @@ void TestSerpFormat() {
                     "the:",
                     "{docid: 0, hitcount: 1}",
                     "{docid: 1, hitcount: 1}"
+            })
+    };
+
+    TestFunctionality(docs, queries, expected);
+}
+
+void TestChars() {
+    const vector<string> docs = {
+            "london is the capital of great britain i b  t t l  t  l s s",
+            "i am travelling down the river a d d b d i b"
+    };
+    const vector<string> queries = {"a", "b", "t", "i"};
+    const vector<string> expected = {
+            "a: {docid: 1, hitcount: 1}",
+            Join(' ', vector{
+                    "b:",
+                    "{docid: 1, hitcount: 2}",
+                    "{docid: 0, hitcount: 1}"
+            }),
+            "t: {docid: 0, hitcount: 3}",
+            Join(' ', vector{
+                    "i:",
+                    "{docid: 1, hitcount: 2}",
+                    "{docid: 0, hitcount: 1}"
             })
     };
 
@@ -198,16 +232,297 @@ void TestBasicSearch() {
             "dislike:",
             "about: {docid: 3, hitcount: 2}",
     };
+
+
+    TestFunctionality(docs, queries, expected);
+}
+
+void TestTime() {
+    const vector<string> docs = {
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "london is the capital of great britain",
+            "paris is the capital of france",
+            "berlin is the capital of germany",
+            "rome is the capital of italy",
+            "madrid is the capital of spain",
+            "lisboa is the capital of portugal",
+            "bern is the capital of switzerland",
+            "moscow is the capital of russia",
+            "kiev is the capital of ukraine",
+            "minsk is the capital of belarus",
+            "astana is the capital of kazakhstan",
+            "beijing is the capital of china",
+            "tokyo is the capital of japan",
+            "bangkok is the capital of thailand",
+            "welcome to moscow the capital of russia the third rome",
+            "amsterdam is the capital of netherlands",
+            "helsinki is the capital of finland",
+            "oslo is the capital of norway",
+            "stockgolm is the capital of sweden",
+            "riga is the capital of latvia",
+            "tallin is the capital of estonia",
+            "warsaw is the capital of poland",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "london is the capital of great britain",
+            "paris is the capital of france",
+            "berlin is the capital of germany",
+            "rome is the capital of italy",
+            "madrid is the capital of spain",
+            "lisboa is the capital of portugal",
+            "bern is the capital of switzerland",
+            "moscow is the capital of russia",
+            "kiev is the capital of ukraine",
+            "minsk is the capital of belarus",
+            "astana is the capital of kazakhstan",
+            "beijing is the capital of china",
+            "tokyo is the capital of japan",
+            "bangkok is the capital of thailand",
+            "welcome to moscow the capital of russia the third rome",
+            "amsterdam is the capital of netherlands",
+            "helsinki is the capital of finland",
+            "oslo is the capital of norway",
+            "stockgolm is the capital of sweden",
+            "riga is the capital of latvia",
+            "tallin is the capital of estonia",
+            "warsaw is the capital of poland",
+    };
+
+    const vector<string> queries = {
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "london is the capital of great britain",
+            "paris is the capital of france",
+            "berlin is the capital of germany",
+            "rome is the capital of italy",
+            "madrid is the capital of spain",
+            "lisboa is the capital of portugal",
+            "bern is the capital of switzerland",
+            "moscow is the capital of russia",
+            "kiev is the capital of ukraine",
+            "minsk is the capital of belarus",
+            "astana is the capital of kazakhstan",
+            "beijing is the capital of china",
+            "tokyo is the capital of japan",
+            "bangkok is the capital of thailand",
+            "welcome to moscow the capital of russia the third rome",
+            "amsterdam is the capital of netherlands",
+            "helsinki is the capital of finland",
+            "oslo is the capital of norway",
+            "stockgolm is the capital of sweden",
+            "riga is the capital of latvia",
+            "tallin is the capital of estonia",
+            "warsaw is the capital of poland",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "we are ready to go",
+            "come on everybody shake you hands",
+            "i love this game",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
+            "daddy daddy daddy dad dad dad",
+            "tell me the meaning of being lonely",
+            "just keep track of it",
+            "how hard could it be",
+            "it is going to be legend wait for it dary legendary",
+            "we dont need no education",
+            "london is the capital of great britain",
+            "paris is the capital of france",
+            "berlin is the capital of germany",
+            "rome is the capital of italy",
+            "madrid is the capital of spain",
+            "lisboa is the capital of portugal",
+            "bern is the capital of switzerland",
+            "moscow is the capital of russia",
+            "kiev is the capital of ukraine",
+            "minsk is the capital of belarus",
+            "astana is the capital of kazakhstan",
+            "beijing is the capital of china",
+            "tokyo is the capital of japan",
+            "bangkok is the capital of thailand",
+            "welcome to moscow the capital of russia the third rome",
+            "amsterdam is the capital of netherlands",
+            "helsinki is the capital of finland",
+            "oslo is the capital of norway",
+            "stockgolm is the capital of sweden",
+            "riga is the capital of latvia",
+            "tallin is the capital of estonia",
+            "warsaw is the capital of poland",
+    };
+
+    const vector<string> expected = {
+            Join(' ', vector{
+                    "we need some help:",
+                    "{docid: 9, hitcount: 2}",
+                    "{docid: 0, hitcount: 1}"
+            }),
+            Join(' ', vector{
+                    "it:",
+                    "{docid: 8, hitcount: 2}",
+                    "{docid: 6, hitcount: 1}",
+                    "{docid: 7, hitcount: 1}",
+            }),
+            "i love this game: {docid: 2, hitcount: 4}",
+            "tell me why: {docid: 5, hitcount: 2}",
+            "dislike:",
+            "about: {docid: 3, hitcount: 2}",
+    };
+
+
     TestFunctionality(docs, queries, expected);
 }
 
 int main() {
     TestRunner tr;
     RUN_TEST(tr, TestSerpFormat);
-//    RUN_TEST(tr, TestTop5);
-//    RUN_TEST(tr, TestHitcount);
-//    RUN_TEST(tr, TestRanking);
-//    RUN_TEST(tr, TestBasicSearch);
+    RUN_TEST(tr, TestTop5);
+    RUN_TEST(tr, TestHitcount);
+    RUN_TEST(tr, TestRanking);
+    RUN_TEST(tr, TestBasicSearch);
+    RUN_TEST(tr, TestChars);
 
+//    RUN_TEST(tr, TestTime);
     return 0;
 }

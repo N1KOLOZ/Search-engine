@@ -8,9 +8,6 @@
 
 using namespace std;
 
-
-#include <iostream>
-
 template<typename Container>
 string Join(char c, const Container &cont) {
     ostringstream os;
@@ -23,4 +20,10 @@ string Join(char c, const Container &cont) {
 
 string_view Strip(string_view s);
 
-vector<string_view> SplitBy(string_view s, char sep);
+vector<string_view> SplitBy(string_view s, char sep = ' ');
+
+vector<string_view> SplitIntoWordsView(string_view line);
+
+vector<string> SplitIntoWords(const string &line);
+
+
