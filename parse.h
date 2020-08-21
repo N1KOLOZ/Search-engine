@@ -22,8 +22,6 @@ string_view Strip(string_view s);
 
 vector<string_view> SplitBy(string_view s, char sep = ' ');
 
-vector<string_view> SplitIntoWordsView(string_view line);
-
-vector<string> SplitIntoWords(const string &line);
+vector<string_view> SplitIntoWordsView(string_view line, char sep = ' ');
 
 

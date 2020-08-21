@@ -36,15 +36,11 @@ public:
         return docs.size();
     }
 
-    const string& Check() const {
-        return docs.back();
-    }
-
 private:
     map<string_view, vector<Item>> index;
     deque<string> docs;
 
-    static const vector<Item> empty_list;
+    static const vector<Item> empty;
 };
 
 class SearchServer {
@@ -59,7 +55,7 @@ public:
 
     void Synchronize();
 private:
-    Synchronized<InvertedIndex> index;
+    Synchronized<InvertedIndex> sync_index;
     deque<future<void>> futures;
 
     bool firstUpdate = true;

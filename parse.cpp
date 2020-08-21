@@ -2,31 +2,40 @@
 
 #include <iterator>
 
-string_view Strip(string_view s) {
-    while (!s.empty() && isspace(s.front())) {
-        s.remove_prefix(1);
+string_view Strip(string_view sv) {
+    while (!sv.empty() && isspace(sv.front())) {
+        sv.remove_prefix(1);
     }
-    while (!s.empty() && isspace(s.back())) {
-        s.remove_suffix(1);
+    while (!sv.empty() && isspace(sv.back())) {
+        sv.remove_suffix(1);
     }
-    return s;
+    return sv;
 }
 
-vector<string_view> SplitBy(string_view s, char sep) {
+vector<string_view> SplitBy(string_view sv, char sep) {
     vector<string_view> result;
-
-    while (!s.empty() && s.front() == sep) {
-        s.remove_prefix(1);
+    while (!sv.empty()) {
+        size_t sep_pos = sv.find(sep);
+        result.push_back(sv.substr(0, sep_pos));
+        sv.remove_prefix(sep_pos != sv.npos ? sep_pos + 1 : sv.size());
     }
+    return result;
+}
 
-    while (!s.empty()) {
-        size_t sep_pos = s.find(sep);
-        result.push_back(s.substr(0, sep_pos));
-        s.remove_prefix(sep_pos != s.npos ? sep_pos + 1 : s.size());
+void LeftStrip(string_view& sv, char sep) {
+    while (!sv.empty() && sv.front() == sep) {
+        sv.remove_prefix(1);
+    }
+}
 
-        while (!s.empty() && s.front() == sep) {
-            s.remove_prefix(1);
-        }
+vector<string_view> SplitIntoWordsView(string_view sv, char sep) {
+    vector<string_view> result;
+    LeftStrip(sv, sep);
+    while (!sv.empty()) {
+        size_t sep_pos = sv.find(sep);
+        result.push_back(sv.substr(0, sep_pos));
+        sv.remove_prefix(sep_pos != sv.npos ? sep_pos + 1 : sv.size());
+        LeftStrip(sv, sep);
     }
     return result;
 }

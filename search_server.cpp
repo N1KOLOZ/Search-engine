@@ -8,7 +8,7 @@
 #include <numeric>
 #include <functional> //ref
 
-const vector<Item> InvertedIndex::empty_list = {};
+const vector<Item> InvertedIndex::empty = {};
 
 InvertedIndex::InvertedIndex(istream &document_input) {
     for (string current_document; getline(document_input, current_document); ) {
@@ -16,13 +16,13 @@ InvertedIndex::InvertedIndex(istream &document_input) {
     }
 }
 
-void InvertedIndex::Add(string&& document) { // do not forget !
+void InvertedIndex::Add(string&& document) {
     docs.push_back(move(document));
 
     const size_t docid = docs.size() - 1;
 
     map<string_view, size_t> word_to_hits;
-    for (string_view word : SplitBy(Strip(docs.back()))) {
+    for (string_view word : SplitIntoWordsView(docs.back())) {
         ++word_to_hits[word];
     }
 
@@ -35,10 +35,9 @@ const vector<Item>& InvertedIndex::Lookup(string_view word) const {
     if (auto it = index.find(word); it != index.end()) {
         return it->second;
     } else {
-        return empty_list;
+        return empty;
     }
 }
-
 
 SearchServer::SearchServer(istream &document_input) {
     UpdateDocumentBase(document_input);
@@ -53,7 +52,7 @@ void UpdateDocumentBaseSingleThread(istream& document_input, Synchronized<Invert
 }
 
 void SearchServer::UpdateDocumentBase(istream& document_input) {
-    futures.push_back(async(UpdateDocumentBaseSingleThread, ref(document_input), ref(index)));
+    futures.push_back(async(UpdateDocumentBaseSingleThread, ref(document_input), ref(sync_index)));
 
     if (firstUpdate) {
         firstUpdate = false;
@@ -64,9 +63,9 @@ void SearchServer::UpdateDocumentBase(istream& document_input) {
 
 void AddQueriesStreamSingleThread(
         istream &query_input, ostream &search_results_output, Synchronized<InvertedIndex>& sync_index) {
+
     // duration tests
     TotalDuration lookup("search_server.cpp: Total lookup in an inverted index");
-    TotalDuration split("search_server.cpp: Total splitting into words");
     TotalDuration sort("search_server.cpp: Total sorting of hits");
     TotalDuration response("search_server.cpp: Total forming a response");
 
@@ -82,16 +81,11 @@ void AddQueriesStreamSingleThread(
         docids.resize(DOCS_NUM);
         iota(docids.begin(), docids.end(), 0);
 
-        vector<string_view> words;
-        {
-            ADD_DURATION(split);
-            words = SplitBy(Strip(current_query));
-        }
+        vector<string_view> words = SplitIntoWordsView(current_query);
 
         {
             auto access = sync_index.GetAccess();
             auto& index = access.ref_to_value;
-
             {
                 for (auto word : words) {
                     ADD_DURATION(lookup);
@@ -129,7 +123,12 @@ void AddQueriesStreamSingleThread(
 
 void SearchServer::AddQueriesStream(
         istream& query_input, ostream& search_results_output) {
-    futures.push_back(async(AddQueriesStreamSingleThread, ref(query_input), ref(search_results_output), ref(index)));
+
+    futures.push_back(async(AddQueriesStreamSingleThread,
+                      ref(query_input),
+                      ref(search_results_output),
+                      ref(sync_index))
+                      );
 }
 
 void SearchServer::Synchronize() {
