@@ -1,5 +1,5 @@
 # SearchEngine
-Implementation of simplified search engine
+Implementation of simplified search engine using C++17.
 
 ## build
 cmake
