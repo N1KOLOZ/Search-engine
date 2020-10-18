@@ -6,22 +6,20 @@
 #include <sstream>
 #include <vector>
 
-using namespace std;
-
 template<typename Container>
-string Join(char c, const Container &cont) {
-    ostringstream os;
-    for (const auto &item : Head(cont, cont.size() - 1)) {
-        os << item << c;
+std::string Join(char sep, const Container& cont) {
+    std::ostringstream os;
+    for (const auto& item : Head(cont, cont.size() - 1)) {
+        os << item << sep;
     }
     os << *rbegin(cont);
     return os.str();
 }
 
-string_view Strip(string_view s);
+std::string_view Strip(std::string_view sv);
 
-vector<string_view> SplitBy(string_view s, char sep = ' ');
+std::vector<std::string_view> SplitBy(std::string_view sv, char sep = ' ');
 
-vector<string_view> SplitIntoWordsView(string_view line, char sep = ' ');
+std::vector<std::string_view> SplitIntoWordsView(std::string_view line, char sep = ' ');
 
 

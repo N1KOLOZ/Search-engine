@@ -1,8 +1,7 @@
 #pragma once
 
+#include <cstddef>
 #include <algorithm>
-
-using namespace std;
 
 template<typename It>
 class IteratorRange {
@@ -29,6 +28,6 @@ private:
 };
 
 template<typename Container>
-auto Head(Container &c, int top) {
-    return IteratorRange(begin(c), begin(c) + min<size_t>(max(top, 0), c.size()));
+auto Head(Container& c, int top) {
+    return IteratorRange(begin(c), begin(c) + std::min<size_t>(std::max(top, 0), c.size()));
 }

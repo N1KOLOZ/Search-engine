@@ -4,12 +4,11 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
 using namespace std::chrono;
 
 class LogDuration {
 public:
-    explicit LogDuration(const string &msg = "") :
+    explicit LogDuration(const std::string& msg = "") :
             message(msg + ": "),
             start(steady_clock::now())
     {
@@ -18,45 +17,45 @@ public:
     ~LogDuration() {
         auto finish = steady_clock::now();
         auto dur = finish - start;
-        cerr << message
+        std::cerr << message
              << duration_cast<milliseconds>(dur).count()
-             << " ms" << endl;
+             << " ms" << std::endl;
     }
 
 private:
-    string message;
+    std::string message;
     steady_clock::time_point start;
 };
 
 class TotalDuration {
 private:
-    string message;
+    std::string message;
 
 public:
     steady_clock::duration value;
 
-    explicit TotalDuration(const string &msg = "") :
+    explicit TotalDuration(const std::string& msg = "") :
             message(msg + ": "),
             value(0)
     {
     }
 
     ~TotalDuration() {
-        cerr << message
+        std::cerr << message
              << duration_cast<milliseconds>(value).count()
-             << " ms" << endl;
+             << " ms" << std::endl;
     }
 };
 
 class AddDuration {
 public:
-    explicit AddDuration(steady_clock::duration &dest) :
+    explicit AddDuration(steady_clock::duration& dest) :
             add_to(dest),
             start(steady_clock::now())
     {
     }
 
-    explicit AddDuration(TotalDuration &dest) :
+    explicit AddDuration(TotalDuration& dest) :
             AddDuration(dest.value)
     {
     }
@@ -66,7 +65,7 @@ public:
     }
 
 private:
-    steady_clock::duration &add_to;
+    steady_clock::duration& add_to;
     steady_clock::time_point start;
 };
 

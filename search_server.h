@@ -6,12 +6,11 @@
 #include <ostream>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <string_view>
 #include <deque>
 #include <future>
-
-using namespace std;
 
 struct Item {
     size_t docid;
@@ -22,13 +21,13 @@ class InvertedIndex {
 public:
     InvertedIndex() = default;
 
-    explicit InvertedIndex(istream& document_input);
+    explicit InvertedIndex(std::istream& document_input);
 
-    void Add(string&& document);
+    void Add(std::string&& document);
 
-    const vector<Item>& Lookup(string_view word) const;
+    const std::vector<Item>& Lookup(std::string_view word) const;
 
-    const string& GetDocument(size_t docid) const {
+    const std::string& GetDocument(size_t docid) const {
         return docs[docid];
     }
 
@@ -37,26 +36,24 @@ public:
     }
 
 private:
-    map<string_view, vector<Item>> index;
-    deque<string> docs;
-
-    static const vector<Item> empty;
+    std::map<std::string_view, std::vector<Item>> index;
+    std::deque<std::string> docs;
 };
 
 class SearchServer {
 public:
     SearchServer() = default;
 
-    explicit SearchServer(istream &document_input);
+    explicit SearchServer(std::istream& document_input);
 
-    void UpdateDocumentBase(istream &document_input);
+    void UpdateDocumentBase(std::istream& document_input);
 
-    void AddQueriesStream(istream &query_input, ostream &search_results_output);
+    void AddQueriesStream(std::istream& query_input, std::ostream& search_results_output);
 
     void Synchronize();
 private:
     Synchronized<InvertedIndex> sync_index;
-    deque<future<void>> futures;
+    std::deque<std::future<void>> futures;
 
     bool firstUpdate = true;
 };

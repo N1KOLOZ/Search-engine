@@ -1,31 +1,25 @@
 #pragma once
 
-#include "test_runner.h"
-
-#include <future>
 #include <mutex>
-#include <thread>
-
-using namespace std;
 
 template<typename T>
 class Synchronized {
 public:
     explicit Synchronized(T initial = T()) :
-            value(move(initial)) {
+            value(std::move(initial)) {
     }
 
     struct Access {
-        lock_guard<mutex> guard;
+        std::lock_guard<std::mutex> guard;
         T& ref_to_value;
     };
 
     Access GetAccess() {
-        return {lock_guard(m), value};
+        return {std::lock_guard<std::mutex>(m), value};
     }
 
 private:
     T value;
-    mutex m;
+    std::mutex m;
 };
 

@@ -4,7 +4,6 @@
 #include "test_runner.h"
 #include "profile.h"
 
-// local
 #include "search_server.h"
 #include "parse.h"
 
@@ -12,16 +11,13 @@
 #include <vector>
 #include <fstream>
 
-
-using namespace std;
-
 void TestFunctionality(
-        const vector<string> &docs,
-        const vector<string> &queries,
-        const vector<string> &expected
+        const std::vector<std::string>& docs,
+        const std::vector<std::string>& queries,
+        const std::vector<std::string>& expected
 ) {
-    istringstream docs_input(Join('\n', docs));
-    istringstream queries_input(Join('\n', queries));
+    std::istringstream docs_input(Join('\n', docs));
+    std::istringstream queries_input(Join('\n', queries));
 
     SearchServer srv;
     {
@@ -30,14 +26,15 @@ void TestFunctionality(
 
     }
 
-    ostringstream queries_output;
+    std::ostringstream queries_output;
     {
         LOG_DURATION("Get response");
         srv.AddQueriesStream(queries_input, queries_output);
     }
 
     srv.Synchronize();
-    const string result = queries_output.str();
+
+    const std::string result = queries_output.str();
 
     const auto lines = SplitBy(Strip(result), '\n');
     ASSERT_EQUAL(lines.size(), expected.size());
@@ -47,14 +44,14 @@ void TestFunctionality(
 }
 
 void TestSerpFormat() {
-    const vector<string> docs = {
+    const std::vector<std::string> docs = {
             "london    is   the capital  of great britain",
             "i am travelling down the   river"
     };
-    const vector<string> queries = {"london", "the"};
-    const vector<string> expected = {
+    const std::vector<std::string> queries = {"london", "the"};
+    const std::vector<std::string> expected = {
             "london: {docid: 0, hitcount: 1}",
-            Join(' ', vector{
+            Join(' ', std::vector{
                     "the:",
                     "{docid: 0, hitcount: 1}",
                     "{docid: 1, hitcount: 1}"
@@ -65,7 +62,7 @@ void TestSerpFormat() {
 }
 
 void TestTop5() {
-    const vector<string> docs = {
+    const std::vector<std::string> docs = {
             "milk a",
             "milk b",
             "milk c",
@@ -78,9 +75,9 @@ void TestTop5() {
             "fire and earth"
     };
 
-    const vector<string> queries = {"milk", "water", "rock"};
-    const vector<string> expected = {
-            Join(' ', vector{
+    const std::vector<std::string> queries = {"milk", "water", "rock"};
+    const std::vector<std::string> expected = {
+            Join(' ', std::vector{
                     "milk:",
                     "{docid: 0, hitcount: 1}",
                     "{docid: 1, hitcount: 1}",
@@ -88,7 +85,7 @@ void TestTop5() {
                     "{docid: 3, hitcount: 1}",
                     "{docid: 4, hitcount: 1}"
             }),
-            Join(' ', vector{
+            Join(' ', std::vector{
                     "water:",
                     "{docid: 7, hitcount: 1}",
                     "{docid: 8, hitcount: 1}",
@@ -99,27 +96,27 @@ void TestTop5() {
 }
 
 void TestHitcount() {
-    const vector<string> docs = {
+    const std::vector<std::string> docs = {
             "the river goes through the entire city there is a house near it",
             "the wall",
             "walle",
             "is is is is",
     };
-    const vector<string> queries = {"the", "wall", "all", "is", "the is"};
-    const vector<string> expected = {
-            Join(' ', vector{
+    const std::vector<std::string> queries = {"the", "wall", "all", "is", "the is"};
+    const std::vector<std::string> expected = {
+            Join(' ', std::vector{
                     "the:",
                     "{docid: 0, hitcount: 2}",
                     "{docid: 1, hitcount: 1}",
             }),
             "wall: {docid: 1, hitcount: 1}",
             "all:",
-            Join(' ', vector{
+            Join(' ', std::vector{
                     "is:",
                     "{docid: 3, hitcount: 4}",
                     "{docid: 0, hitcount: 1}",
             }),
-            Join(' ', vector{
+            Join(' ', std::vector{
                     "the is:",
                     "{docid: 3, hitcount: 4}",
                     "{docid: 0, hitcount: 3}",
@@ -130,7 +127,7 @@ void TestHitcount() {
 }
 
 void TestRanking() {
-    const vector<string> docs = {
+    const std::vector<std::string> docs = {
             "london is the capital of great britain",
             "paris is the capital of france",
             "berlin is the capital of germany",
@@ -155,9 +152,9 @@ void TestRanking() {
             "warsaw is the capital of poland",
     };
 
-    const vector<string> queries = {"moscow is the capital of russia"};
-    const vector<string> expected = {
-            Join(' ', vector{
+    const std::vector<std::string> queries = {"moscow is the capital of russia"};
+    const std::vector<std::string> expected = {
+            Join(' ', std::vector{
                     "moscow is the capital of russia:",
                     "{docid: 7, hitcount: 6}",
                     "{docid: 14, hitcount: 6}",
@@ -170,7 +167,7 @@ void TestRanking() {
 }
 
 void TestBasicSearch() {
-    const vector<string> docs = {
+    const std::vector<std::string> docs = {
             "we are ready to go",
             "come on everybody shake you hands",
             "i love this game",
@@ -183,7 +180,7 @@ void TestBasicSearch() {
             "we dont need no education"
     };
 
-    const vector<string> queries = {
+    const std::vector<std::string> queries = {
             "we need some help",
             "it",
             "i love this game",
@@ -192,13 +189,13 @@ void TestBasicSearch() {
             "about"
     };
 
-    const vector<string> expected = {
-            Join(' ', vector{
+    const std::vector<std::string> expected = {
+            Join(' ', std::vector{
                     "we need some help:",
                     "{docid: 9, hitcount: 2}",
                     "{docid: 0, hitcount: 1}"
             }),
-            Join(' ', vector{
+            Join(' ', std::vector{
                     "it:",
                     "{docid: 8, hitcount: 2}",
                     "{docid: 6, hitcount: 1}",
@@ -214,19 +211,19 @@ void TestBasicSearch() {
 }
 
 void TestMultithreading() {
-    ifstream f1("/home/niko/CLionProjects/FinalRedBelt/SearchEngine/input/file1.txt", ifstream::in);
-    ifstream f2("/home/niko/CLionProjects/FinalRedBelt/SearchEngine/input/file2.txt", ifstream::in);
+    std::ifstream f1("/home/niko/CLionProjects/FinalRedBelt/SearchEngine/input/file1.txt", std::ifstream::in);
+    std::ifstream f2("/home/niko/CLionProjects/FinalRedBelt/SearchEngine/input/file2.txt", std::ifstream::in);
 
-    vector<ifstream> queries_inputs(8);
-    string input_path = __FILE__;
+    std::vector<std::ifstream> queries_inputs(8);
+    std::string input_path = __FILE__;
     input_path = input_path.substr(0, input_path.find("tests.h")) + "input/queries0.txt";
     size_t num_pos = input_path.find(".txt") - 1;
 
     // /home/niko/CLionProjects/FinalRedBelt/SearchEngine/input/queries1.txt
     for (size_t i = 0; i < queries_inputs.size(); ++i) {
         input_path[num_pos] = '1' + i;
-        cout << input_path << endl;
-        queries_inputs[i] = ifstream(input_path);
+        std::cout << input_path << std::endl;
+        queries_inputs[i] = std::ifstream(input_path);
     }
 
     SearchServer srv;
@@ -236,7 +233,7 @@ void TestMultithreading() {
 
     }
 
-    vector<ostringstream> queries_outputs(queries_inputs.size());
+    std::vector<std::ostringstream> queries_outputs(queries_inputs.size());
     {
         LOG_DURATION("Get response");
         for(size_t i = 0; i < queries_outputs.size(); ++i) {

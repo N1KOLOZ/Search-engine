@@ -1,8 +1,8 @@
 #include "parse.h"
 
-#include <iterator>
+//#include <iterator>
 
-string_view Strip(string_view sv) {
+std::string_view Strip(std::string_view sv) {
     while (!sv.empty() && isspace(sv.front())) {
         sv.remove_prefix(1);
     }
@@ -12,8 +12,14 @@ string_view Strip(string_view sv) {
     return sv;
 }
 
-vector<string_view> SplitBy(string_view sv, char sep) {
-    vector<string_view> result;
+void LeftStrip(std::string_view& sv, char sep) {
+    while (!sv.empty() && sv.front() == sep) {
+        sv.remove_prefix(1);
+    }
+}
+
+std::vector<std::string_view> SplitBy(std::string_view sv, char sep) {
+    std::vector<std::string_view> result;
     while (!sv.empty()) {
         size_t sep_pos = sv.find(sep);
         result.push_back(sv.substr(0, sep_pos));
@@ -22,14 +28,8 @@ vector<string_view> SplitBy(string_view sv, char sep) {
     return result;
 }
 
-void LeftStrip(string_view& sv, char sep) {
-    while (!sv.empty() && sv.front() == sep) {
-        sv.remove_prefix(1);
-    }
-}
-
-vector<string_view> SplitIntoWordsView(string_view sv, char sep) {
-    vector<string_view> result;
+std::vector<std::string_view> SplitIntoWordsView(std::string_view sv, char sep) {
+    std::vector<std::string_view> result;
     LeftStrip(sv, sep);
     while (!sv.empty()) {
         size_t sep_pos = sv.find(sep);
