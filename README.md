@@ -1,4 +1,4 @@
-# Search-engine
+# search-engine
 Implementation of simplified search engine using C++17.
 
 ## build
